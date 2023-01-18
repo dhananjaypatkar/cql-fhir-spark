@@ -99,11 +99,11 @@ public class EvaluatorMapPartitionsFunction implements MapPartitionsFunction<Str
         ModelResolver modelResolver = new CachingModelResolverDecorator(rawModelResolver);
 
         // Parameters for eval
-        VersionedIdentifier libraryIdentifier = new VersionedIdentifier().withId("EXM74");
+        VersionedIdentifier libraryIdentifier = new VersionedIdentifier().withId("EXM124_FHIR4").withVersion("8.2.000");
 
-        Interval measurementPeriod = new Interval(new DateTime(new BigDecimal("0"), 2019, 01, 01), true,
+        /* Interval measurementPeriod = new Interval(new DateTime(new BigDecimal("0"), 2019, 01, 01), true,
                 new DateTime(new BigDecimal("0"), 2019, 12, 12), true);
-
+ */
         List<String> results = new ArrayList<>();
         while (input.hasNext()) {
             String dataBundleJson = input.next();
@@ -112,7 +112,8 @@ public class EvaluatorMapPartitionsFunction implements MapPartitionsFunction<Str
 
             List<Patient> patients = BundleUtil.toListOfResourcesOfType(fhirContext, dataBundle, Patient.class);
             if (patients == null || patients.isEmpty() || patients.size() > 1) {
-                throw new Exception("Patient data bundles must have exactly 1 Patient resource");
+                //throw new Exception("Patient data bundles must have exactly 1 Patient resource");
+                System.out.println("Patient data bundles must have exactly 1 Patient resource");
             }
 
             String patientId = patients.get(0).getIdElement().getIdPart();
@@ -133,8 +134,8 @@ public class EvaluatorMapPartitionsFunction implements MapPartitionsFunction<Str
 
             EvaluationResult evalResult = cqlEvaluator.evaluate(
                 libraryIdentifier,
-                Pair.of("Patient", patientId),
-                Collections.singletonMap("Measurement Period", measurementPeriod));
+                Pair.of("Patient", patientId)/* ,
+                Collections.singletonMap("Measurement Period", measurementPeriod) */);
 
             StringBuilder stringBuilder = new StringBuilder();
             for (Map.Entry<String, Object> entry : evalResult.expressionResults.entrySet()) {

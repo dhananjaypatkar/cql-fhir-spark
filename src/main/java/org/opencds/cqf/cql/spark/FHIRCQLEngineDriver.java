@@ -1,7 +1,6 @@
 package org.opencds.cqf.cql.spark;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.spark.api.java.JavaRDD;
@@ -23,11 +22,12 @@ import scala.Tuple2;
 public class FHIRCQLEngineDriver {
 
     public static void main(String[] args) throws IOException {
-        System.out.println("Starting driver with parameters "+Arrays.toString(args));
-        String resourcePath = args[0];
-        String cqlPath = args[1];
-        String valueSetPath = args[2];
-        String outputPath = args[3];
+        System.out.println("Here in driver from spark operator");
+        //System.out.println("Starting driver with parameters "+Arrays.toString(args));
+        String resourcePath = "/opt/fhir/";//args[0];
+        String cqlPath = "/opt/cql/";//args[1];
+        String valueSetPath = "/opt/valuesets/";// args[2];
+       // String outputPath = args[3];
         
         SparkSession spark = SparkSession.builder().appName("CQL on FHIR on Spark")
                 .getOrCreate();
@@ -97,8 +97,15 @@ public class FHIRCQLEngineDriver {
                 .mapPartitions(new EvaluatorMapPartitionsFunction(cqlLibBroadcast.value(), valuesetBroadCast.value()), Encoders.STRING());
 
         // Write results
-        results.write().text(outputPath);
-
+        //results.write().text(outputPath);
+        //for test..write output to the console
+        List<String> res = results.collectAsList();
+        if(res != null && !res.isEmpty()){
+            for (String r : res) {
+                System.out.println(r);
+            }
+        }
+       
         spark.stop();
     }
 }
